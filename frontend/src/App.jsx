@@ -28,6 +28,7 @@ const App = () => {
 
   return (
     <Routes>
+
       {/* Public routes redirect to home when already logged in. */}
       <Route
         path="/login"
@@ -67,7 +68,7 @@ const App = () => {
         path="/profile/:id"
         element={
           <Protected>
-            <Profile />
+            <Profile /> 
           </Protected>
         }
       />
@@ -76,5 +77,7 @@ const App = () => {
     </Routes>
   );
 };
+
+
 
 export default App;

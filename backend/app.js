@@ -1,7 +1,6 @@
 require("express-async-errors");
 const http = require("http");
 const express = require("express");
-const cors = require("cors");
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
@@ -20,12 +19,11 @@ const postsRouter = require("./controllers/posts");
 const app = express();
 
 // --- Middleware ---
-app.use(cors({ origin: config.CLIENT_URL, credentials: true }));
 app.use(express.json());
+app.use(express.static('dist'))
 app.use(tokenExtractor);
 
 // --- Routes ---
-app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/login", loginRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/posts", postsRouter);
@@ -80,6 +78,7 @@ const start = async () => {
     process.exit(1);
   }
 };
+
 
 start();
 
