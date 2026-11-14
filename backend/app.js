@@ -1,5 +1,6 @@
 require("express-async-errors");
 const http = require("http");
+const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
@@ -20,13 +21,19 @@ const app = express();
 
 // --- Middleware ---
 app.use(express.json());
-app.use(express.static('dist'))
+app.use(express.static(path.join(__dirname, "dist")))
 app.use(tokenExtractor);
 
 // --- Routes ---
 app.use("/api/login", loginRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/posts", postsRouter);
+
+// Serve the React app for any non-API route (client-side routing).
+app.get("*", (request, response, next) => {
+  if (request.path.startsWith("/api")) return next();
+  response.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
