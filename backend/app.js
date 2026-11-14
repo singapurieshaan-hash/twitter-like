@@ -66,20 +66,23 @@ io.on("connection", (clientSocket) => {
 });
 
 // --- Start ---
-const start = async () => {
-  try {
-    await mongoose.connect(config.MONGODB_URI);
-    logger.info("connected to MongoDB");
-    server.listen(config.PORT, () => {
-      logger.info(`server running on port ${config.PORT}`);
-    });
-  } catch (error) {
-    logger.error("failed to connect to MongoDB:", error.message);
-    process.exit(1);
-  }
-};
+// Connect to MongoDB in the background without killing the process if it
+// fails. On Vercel the app runs as a serverless function, so a failed
+// connection must not crash the function, and the function must not call
+// listen(). Mongoose buffers model operations until the connection is up.
+mongoose
+  .connect(config.MONGODB_URI)
+  .then(() => logger.info("connected to MongoDB"))
+  .catch((error) =>
+    logger.error("failed to connect to MongoDB:", error.message)
+  );
 
+// Only listen when run directly (local dev: `node app.js` / `npm run dev`).
+// On Vercel, the platform invokes the exported app itself.
+if (require.main === module) {
+  server.listen(config.PORT, () => {
+    logger.info(`server running on port ${config.PORT}`);
+  });
+}
 
-start();
-
-module.exports = { app, server };
+module.exports = app;
